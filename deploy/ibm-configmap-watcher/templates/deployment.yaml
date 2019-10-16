@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "configmap-watcher.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: {{ include "configmap-watcher.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "configmap-watcher.chart" . }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "configmap-watcher.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+      helm.sh/chart: {{ include "configmap-watcher.chart" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "configmap-watcher.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        helm.sh/chart: {{ include "configmap-watcher.chart" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: docker/default
+    spec:
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: {{ .Values.securityContext.pod.runAsNonRoot }}
+        runAsUser: {{ .Values.securityContext.pod.runAsUser }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - --v={{ .Values.args.verbosity }}
+          {{- if .Values.args.gatherFreq }}
+          - --gather-frequency={{ .Values.args.gatherFreq }}
+          {{- end }}
+          {{- if .Values.args.checkConfigmapFreq }}
+          - --check-configmap-frequency={{ .Values.args.checkConfigmapFreq }}
+          {{- end }}
+          {{- if .Values.args.cleanFreq }}
+          - --clean-frequency={{ .Values.args.cleanFreq }}
+          {{- end }}
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - pgrep watcher -l
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec echo start configmap-watcher
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+          securityContext:
+            privileged: {{ .Values.securityContext.container.privileged }}
+            allowPrivilegeEscalation: {{ .Values.securityContext.container.allowPrivilegeEscalation }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.container.readOnlyRootFilesystem }}
+            capabilities:
+              drop:
+              - ALL
+            runAsUser: {{ .Values.securityContext.container.runAsUser }}
+            runAsNonRoot: {{ .Values.securityContext.container.runAsNonRoot }}
+          resources:
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

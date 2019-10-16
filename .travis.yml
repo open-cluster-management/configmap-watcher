@@ -1,0 +1,71 @@
+language: bash
+sudo: true
+
+language: go
+go_import_path: github.ibm.com/IBMPrivateCloud/config-map-watcher
+go:
+  - 1.13.1
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+    - /^[0-9]+\..*$/
+    - /^v[0-9]+\..*$/
+    - /^release-[0-9]+\..*$/
+
+matrix:
+  fast_finish: true
+
+before_install:
+  - source travis-env.sh
+
+matrix:
+  fast_finish: true
+
+stages:
+  - lint
+  - test
+  - build
+
+jobs:
+  include:
+    - stage: lint
+      os: linux
+      script:
+        - make lint
+    - stage: test
+      os: linux
+      script:
+        - make test
+    - stage: build
+      os: linux
+      script:
+        - make init
+        - make dependencies
+        - make go-build
+        - make docker-image
+        - make docker:login
+        - make docker-push
+        - make rhel-image
+        - make docker-push-rhel
+    - stage: build
+      os: linux-ppc64le
+      script:
+        - make init
+        - make dependencies
+        - make go-build
+        - make docker-image
+        - make docker:login
+        - make docker-push
+    - stage: build
+      os: linux-s390
+      script:
+        - make init
+        - make dependencies
+        - make go-build
+        - make docker-image
+        - make docker:login
+        - make docker-push

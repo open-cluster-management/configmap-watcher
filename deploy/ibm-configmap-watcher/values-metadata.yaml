@@ -1,0 +1,181 @@
+replicaCount:
+  __metadata:
+    label: "Replicas"
+    description: "Number of configmap-watcher replicas"
+    type: "number"
+    required: true
+image:
+  __metadata:
+    label: "Image"
+    description: "Image to be used for configmap-watcher deployment"
+  repository:
+    __metadata:
+      label: "Image Repository"
+      description: "Full repository and path to configmap watcher image."
+      type: "string"
+      required: true
+  tag:
+    __metadata:
+      label: "Image Tag"
+      description: "The tag identifying which configmap watcher image to deploy."
+      type: "string"
+      required: true
+  pullPolicy:
+    __metadata:
+      label: "Pull Policy"
+      description: "The policy used by Kubernetes to pull images."
+      type: "string"
+      required: true
+      options:
+      - label: "Never"
+        value: "Never"
+      - label: "IfNotPresent"
+        value: "IfNotPresent"
+      - label: "Always"
+        value: "Always"
+args:
+  __metadata:
+    label: "Arguments"
+    description: "Arguments passed into the deployment of the configmap watcher service."
+  verbosity:
+    __metadata:
+      label: "Verbosity"
+      description: "How verbose you want the logs to be with 0 being the least and 12 being the most."
+      type: "string"
+      required: false
+  cleanFreq:
+    __metadata:
+      label: "Clean Frequency"
+      description: "How frequently you want the service to clean up stale resources."
+      type: "string"
+      required: false
+  gatherFreq:
+    __metadata:
+      label: "Gather Frequency"
+      description: "How frequently (in seconds) you want the service to look for new configmaps to watch."
+      type: "string"
+      required: false
+  checkConfigmapFreq:
+    __metadata:
+      label: "Check Frequency"
+      description: "How frequently (in seconds) you want the service to look for changes in the configmaps it's watching."
+      type: "string"
+      required: false
+serviceAccount:
+  __metadata:
+    label: "Service Account"
+    description: "Creates a new service account."
+  create:
+    __metadata:
+      label: "Create"
+      description: "If true, create a new service account."
+      type: "boolean"
+      required: true
+  name:
+    __metadata:
+      label: "Service Account Name"
+      description: "Service account to be used. If not set and serviceAccount.create is true, a name is generated using the fullname template."
+      type: "string"
+      required: false
+securityContext:
+  __metadata:
+    label: "Security Context"
+    description: "The security context configmap-watcher uses."
+  pod:
+    runAsNonRoot:
+      __metadata:
+        label: "Run As Non-Root"
+        description: "If true, prevents configmap-watcher containers from being run as a root user."
+        type: "boolean"
+    runAsUser:
+      __metadata:
+        label: "Run As User"
+        description: "The user to run all containers in this pod as."
+        type: "string"
+  container:
+    readOnlyRootFilesystem:
+      __metadata:
+        label: "Read Only File System"
+        description: "If true, then only allows reads from the file system."
+        type: "boolean"
+    allowPrivilegeEscalation:
+      __metadata:
+        label: "Allow Privilege Escalation"
+        description: "If true, allows a user within the configmap-watcher container to escalate their privilege to root."
+        type: "boolean"
+    runAsNonRoot:
+      __metadata:
+        label: "Run As Non-Root"
+        description: "If true, prevents configmap-watcher container from being run as a root user."
+        type: "boolean"
+    runAsUser:
+      __metadata:
+        label: "Run As User"
+        description: "The user to run configmap-watcher as in the container."
+        type: "string"
+    privileged:
+      __metadata:
+        label: "Privileged"
+        description: "If true, allows container to run with privileged access."
+        type: "boolean"
+nodeSelector:
+  __metadata:
+    name: "nodeSelector"
+    label: "Node selector"
+    description: "Node labels for pod assignment"
+    type: "string"
+    immutable: false
+    required: false
+  master:
+    __metadata:
+      label: "Master"
+      description: "Runs on master node if true, otherwise runs on other nodes if false."
+      type: "string"
+      required: true
+affinity:
+  __metadata:
+    label: "Affinity"
+    description: "Pod's affinity"
+    hidden: true
+tolerations:
+  __metadata:
+    label: "Tolerations"
+    description: "When specified, tolerates any taint that matches the triple <key, value, effect>"
+    type: "string"
+    required: false
+resources:
+  __metadata:
+    label: "Resources"
+    description: "Resource requests and limits for cpu and memory for configmap-watcher deployment"
+  requests:
+    memory:
+      __metadata:
+        label: "Memory request"
+        description: "The amount of memory configmap-watcher requests"
+        required: false
+        type: "string"
+    cpu:
+      __metadata:
+        label: "CPU request"
+        description: "The amount of CPU configmap-watcher requests"
+        required: false
+        type: "string"
+  limits:
+    memory:
+      __metadata:
+        label: "Memory limit"
+        description: "The memory limit configmap-watcher has"
+        required: true
+        type: "string"
+    cpu:
+      __metadata:
+        label: "CPU limit"
+        description: "The limit on CPU that that configmap-watcher is allowed to have"
+        required: true
+        type: "string"
+imagePullSecrets:
+  __metadata:
+    label: "Image Pull Secrets"
+    description: "Any secrets required to pull configmap-watcher images."
+    type: "string"
+    required: false

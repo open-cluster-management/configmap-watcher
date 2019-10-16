@@ -1,0 +1,50 @@
+# Licensed Materials - Property of IBM
+# 5737-E67
+# @ Copyright IBM Corporation 2016, 2019. All Rights Reserved.
+# US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-test"
+  annotations:
+    "helm.sh/hook": test-success
+  labels:
+    app.kubernetes.io/name: {{ include "configmap-watcher.name" . }}-test
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "configmap-watcher.chart" . }}
+    release: {{ .Release.Name }}
+spec:
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+  serviceAccountName: {{ .Values.serviceAccount.name }}
+  securityContext:
+{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }} 
+    runAsUser: {{ .Values.securityContext.pod.runAsUser }}
+{{- end }}
+    runAsNonRoot: {{ .Values.securityContext.pod.runAsNonRoot }}  
+  containers:
+  - name: {{ .Release.Name }}-test-cmw-health
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    command: ["sh", "-c", "echo configmap-watcher-tests"]
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "150Mi"
+      limits:
+        cpu: "200m"
+        memory: "300Mi"
+    securityContext:
+      allowPrivilegeEscalation: {{ .Values.securityContext.container.allowPrivilegeEscalation }}
+{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }} 
+      runAsUser: {{ .Values.securityContext.container.runAsUser }}
+{{- end }}          
+      readOnlyRootFilesystem: {{ .Values.securityContext.container.readOnlyRootFilesystem }}
+      runAsNonRoot: {{ .Values.securityContext.container.runAsNonRoot }}
+      privileged: {{ .Values.securityContext.container.privileged }}    
+      capabilities:
+        drop:
+        - ALL
+  restartPolicy: Never

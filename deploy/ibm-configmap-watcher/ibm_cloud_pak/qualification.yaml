@@ -1,0 +1,22 @@
+qualification:
+  levelName: ""
+  levelDescription: ""
+  issueDate: ""
+  duration: ""
+  terms: ""
+prereqs:
+  security:
+    kubernetes:
+      podSecurityPolicy:
+        name: "ibm-privileged-psp"
+    openshift:
+      securityContextConstraints:
+        name: "ibm-anyuid-scc"
+    ibmCloudPrivate:
+      installerRole:
+        name: "ClusterAdministrator"  
+  k8sDistros:
+    kubernetes:
+      semver: ">=1.11.0"
+    openshift:
+      semver: ">=1.11.0"
