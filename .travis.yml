@@ -2,7 +2,7 @@ language: bash
 sudo: true
 
 language: go
-go_import_path: github.ibm.com/IBMPrivateCloud/config-map-watcher
+go_import_path: github.ibm.com/IBMPrivateCloud/configmap-watcher
 go:
   - 1.13.1
 

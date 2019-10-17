@@ -13,7 +13,7 @@ GOARCH=$(ARCH)
 GOOS := linux
 
 APP=icp-config-map-watcher
-VERSION=1.0.0
+VERSION=3.2.2
 
 # Metadata
 IMAGE_DESCRIPTION=Service that watches config maps specified by deployments/statefulsets/daemonsets and restarts their pods if the configmap changes.

@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
 
-	watcherController "github.ibm.com/IBMPrivateCloud/config-map-watcher/pkg/controller/watcher"
+	watcherController "github.ibm.com/IBMPrivateCloud/configmap-watcher/pkg/controller/watcher"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
@@ -31,9 +31,9 @@ func main() {
 
 	flag.Parse()
 
-	klog.Info("In main. Starting now")
+	klog.V(11).Info("In main. Starting now")
 	stopCh := ctrl.SetupSignalHandler()
-	klog.Info("Getting the kubeconfig...")
+	klog.V(11).Info("Getting the kubeconfig...")
 	// Get the kube config
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -41,7 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	klog.Info("Got kube config, getting client")
+	klog.V(11).Info("Got kube config, getting client")
 	// Get kubernetes client based on config
 	kubeClient := kubernetes.NewForConfigOrDie(cfg)
 	watcher := watcherController.Init(kubeClient, cleanFreq)
@@ -49,23 +49,23 @@ func main() {
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		klog.Info("starting gather configmap")
+		klog.V(11).Info("starting gather configmap")
 		for {
 			watcher.GatherConfigMaps(gatherFreq, stopCh)
-			klog.Info("Back in for loop before another call gather configs")
+			klog.V(11).Info("Back in for loop before another call gather configs")
 		}
-		klog.Info("Exited worker configmap watcher")
+		klog.V(11).Info("Exited worker configmap watcher")
 	}()
 	go func() {
 		defer wg.Done()
-		klog.Info("starting check for configmap changes")
+		klog.V(11).Info("starting check for configmap changes")
 		for {
 			watcher.CheckConfigMapsForChanges(checkConfigmapFreq, stopCh)
-			klog.Info("Back in for loop before another call")
+			klog.V(11).Info("Back in for loop before another call")
 		}
-		klog.Info("Exited configmap checker")
+		klog.V(11).Info("Exited configmap checker")
 	}()
-	klog.Info("Outside the go functions")
+	klog.V(11).Info("Outside the go functions")
 	wg.Wait()
-	klog.Info("After the wait function")
+	klog.V(11).Info("After the wait function")
 }

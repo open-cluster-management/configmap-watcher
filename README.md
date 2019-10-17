@@ -1,1 +1,1 @@
-# config-map-watcher
+# configmap-watcher
