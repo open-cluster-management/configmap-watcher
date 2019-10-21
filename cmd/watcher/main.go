@@ -9,6 +9,7 @@ package main
 import (
 	"flag"
 	"os"
+	"strings"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
@@ -23,13 +24,25 @@ func main() {
 	klog.InitFlags(nil)
 	defer klog.Flush()
 
-	var gatherFreq, checkConfigmapFreq, cleanFreq uint
+	var allowed map[string]struct{}
+	var allowedNamespaces string
+	var gatherFreq, cleanFreq uint
+	var restrictNamespaces bool
+	flag.StringVar(&allowedNamespaces, "allowed-namespaces", "", "Space-separated namespaces. Only the deployments/daemonsets/statefulsets in these namespaces are allowed to use this controller to watch configmaps and restart themselves when those configmaps change.")
 	flag.UintVar(&gatherFreq, "gather-frequency", 20, "How frequently (in seconds) to gather configmaps from kubernetes deployments/daemonsets/statefulsets")
-	flag.UintVar(&checkConfigmapFreq, "check-configmap-frequency", 60, "How frequently (in seconds) to check the configmaps for changes.")
 	flag.UintVar(&cleanFreq, "clean-frequency", 100, "How frequently (in count) we want to clean up stale resources.")
+	flag.BoolVar(&restrictNamespaces, "restrict-namespaces", false, "If true, restricts which deployable is allowed to use this controller based on the allowed-namespaces flag.")
 	flag.Set("logtostderr", "true")
 
 	flag.Parse()
+
+	// Adding every allowed namespace into the map
+	allowed = make(map[string]struct{})
+	namespaces := strings.Fields(allowedNamespaces)
+	for _, namespace := range namespaces {
+		allowed[namespace] = struct{}{}
+	}
+	klog.V(5).Infof("Allowed namespaces %v", allowed)
 
 	klog.V(11).Info("In main. Starting now")
 	stopCh := ctrl.SetupSignalHandler()
@@ -44,9 +57,9 @@ func main() {
 	klog.V(11).Info("Got kube config, getting client")
 	// Get kubernetes client based on config
 	kubeClient := kubernetes.NewForConfigOrDie(cfg)
-	watcher := watcherController.Init(kubeClient, cleanFreq)
+	watcher := watcherController.Init(kubeClient, allowed, cleanFreq, restrictNamespaces)
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		klog.V(11).Info("starting gather configmap")
@@ -55,15 +68,6 @@ func main() {
 			klog.V(11).Info("Back in for loop before another call gather configs")
 		}
 		klog.V(11).Info("Exited worker configmap watcher")
-	}()
-	go func() {
-		defer wg.Done()
-		klog.V(11).Info("starting check for configmap changes")
-		for {
-			watcher.CheckConfigMapsForChanges(checkConfigmapFreq, stopCh)
-			klog.V(11).Info("Back in for loop before another call")
-		}
-		klog.V(11).Info("Exited configmap checker")
 	}()
 	klog.V(11).Info("Outside the go functions")
 	wg.Wait()
