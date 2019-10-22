@@ -4,7 +4,7 @@ sudo: true
 language: go
 go_import_path: github.ibm.com/IBMPrivateCloud/configmap-watcher
 go:
-  - 1.13.1
+  - 1.13.2
 
 services:
   - docker
