@@ -43,6 +43,7 @@ func restartDeployment(client *kubernetes.Clientset, deploymentName types.Namesp
 	deployment, err := deploymentsInterface.Get(deploymentName.Name, metav1.GetOptions{})
 	if err != nil {
 		klog.Errorf("error occurred getting deployment %v", deployment)
+		return err
 	}
 	deployment.ObjectMeta.Labels[restartLabel] = update
 	deployment.Spec.Template.ObjectMeta.Labels[restartLabel] = update
@@ -61,6 +62,7 @@ func restartDaemonset(client *kubernetes.Clientset, daemonsetName types.Namespac
 	daemonset, err := daemonsetInterface.Get(daemonsetName.Name, metav1.GetOptions{})
 	if err != nil {
 		klog.Errorf("Error getting daemonset %v", daemonsetName)
+		return err
 	}
 	daemonset.ObjectMeta.Labels[restartLabel] = update
 	daemonset.Spec.Template.ObjectMeta.Labels[restartLabel] = update
@@ -79,6 +81,7 @@ func restartStatefulset(client *kubernetes.Clientset, statefulsetName types.Name
 	statefulset, err := statefulsetInterface.Get(statefulsetName.Name, metav1.GetOptions{})
 	if err != nil {
 		klog.Errorf("Error getting statefulset %v", statefulsetName)
+		return err
 	}
 	statefulset.ObjectMeta.Labels[restartLabel] = update
 	statefulset.Spec.Template.ObjectMeta.Labels[restartLabel] = update

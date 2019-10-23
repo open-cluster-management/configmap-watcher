@@ -44,7 +44,7 @@ func main() {
 	}
 	klog.V(5).Infof("Allowed namespaces %v", allowed)
 
-	klog.V(11).Info("In main. Starting now")
+	klog.Info("In main. Starting now")
 	stopCh := ctrl.SetupSignalHandler()
 	klog.V(11).Info("Getting the kubeconfig...")
 	// Get the kube config
@@ -62,7 +62,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		klog.V(11).Info("starting gather configmap")
+		klog.V(11).Info("Starting gather configmap")
 		for {
 			watcher.GatherConfigMaps(gatherFreq, stopCh)
 			klog.V(11).Info("Back in for loop before another call gather configs")

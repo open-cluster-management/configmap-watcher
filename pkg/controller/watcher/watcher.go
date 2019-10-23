@@ -45,6 +45,7 @@ type WatcherController struct {
 }
 
 func Init(cl *kubernetes.Clientset, allowed map[string]struct{}, cleanFreq uint, restrict bool) *WatcherController {
+	klog.V(4).Info("Initializing watcher controller.")
 	allowedNamespaces = allowed
 	clean = cleanFreq
 	restrictNamespaces = restrict
@@ -92,12 +93,12 @@ NEXT_DEPLOYMENT:
 			klog.V(5).Infof("Ignoring deployment %s/%s since it's not in an allowed namespace.", deployment.ObjectMeta.Namespace, deployment.ObjectMeta.Name)
 			continue NEXT_DEPLOYMENT
 		}
-		klog.V(4).Infof("Checking deployment: %s", deployment.ObjectMeta.Name)
+		klog.Infof("Found deployment opting in: %s", deployment.ObjectMeta.Name)
 		if _, ok := deployment.ObjectMeta.Annotations[watcherAnnotation]; ok {
 			klog.V(5).Info("Deployment has the watcher annotation")
 			// If the deployment has the annotation, get the namespace/name of the configmap
 			configmapName := splitNamespacedName(deployment.ObjectMeta.Annotations[watcherAnnotation])
-			klog.V(3).Infof("The configmap name %s", configmapName.String())
+			klog.Infof("The configmap specified by this deployment %s", configmapName.String())
 			_, err := w.client.CoreV1().ConfigMaps(configmapName.Namespace).Get(configmapName.Name, metav1.GetOptions{})
 			if err != nil {
 				klog.Errorf("ERROR: %s: unable to get configmap; invalid name/namespace for configmap [%s] or error with contacting the server", err.Error(), configmapName.String())
@@ -113,7 +114,13 @@ NEXT_DEPLOYMENT:
 				w.createInformer(configmapName, &stopCh)
 			} else {
 				klog.V(3).Info("Configmap already in list to watch, updating associated deployment counter.")
-				watchedConfigmaps[configmapName].Deployments[types.NamespacedName{Name: deployment.ObjectMeta.Name, Namespace: deployment.ObjectMeta.Namespace}] = storedCounter
+				if watchedConfigmaps[configmapName].Deployments == nil {
+					storedDeployments := make(map[types.NamespacedName]uint)
+					storedDeployments[types.NamespacedName{Name: deployment.ObjectMeta.Name, Namespace: deployment.ObjectMeta.Namespace}] = storedCounter
+					watchedConfigmaps[configmapName].Deployments = storedDeployments
+				} else {
+					watchedConfigmaps[configmapName].Deployments[types.NamespacedName{Name: deployment.ObjectMeta.Name, Namespace: deployment.ObjectMeta.Namespace}] = storedCounter
+				}
 			}
 			watchedConfigmaps[configmapName].Mark = storedCounter
 		}
@@ -126,10 +133,11 @@ NEXT_DAEMONSET:
 			klog.V(5).Infof("Ignoring daemonset %s/%s since it's not in an allowed namespace.", daemonset.ObjectMeta.Namespace, daemonset.ObjectMeta.Name)
 			continue NEXT_DAEMONSET
 		}
+		klog.Infof("Found daemonset opting in: %s", daemonset.ObjectMeta.Name)
 		if _, ok := daemonset.ObjectMeta.Annotations[watcherAnnotation]; ok {
 			// If the daemonset has the annotation, get the namespace/name of the configmap
 			configmapName := splitNamespacedName(daemonset.ObjectMeta.Annotations[watcherAnnotation])
-			klog.V(3).Infof("The configmap name %s", configmapName.String())
+			klog.Infof("The configmap specified by this daemonset %s", configmapName.String())
 			_, err := w.client.CoreV1().ConfigMaps(configmapName.Namespace).Get(configmapName.Name, metav1.GetOptions{})
 			if err != nil {
 				klog.Errorf("Unable to get configmap; invalid name/namespace for configmap or error with contacting the server, error: %s, configmap name specified in annotation %s", err.Error(), configmapName)
@@ -145,7 +153,13 @@ NEXT_DAEMONSET:
 				w.createInformer(configmapName, &stopCh)
 			} else {
 				klog.V(3).Info("Configmap already in list to watch, updating daemonset counter")
-				watchedConfigmaps[configmapName].Daemonsets[types.NamespacedName{Name: daemonset.ObjectMeta.Name, Namespace: daemonset.ObjectMeta.Namespace}] = storedCounter
+				if watchedConfigmaps[configmapName].Daemonsets == nil {
+					storedDaemonset := make(map[types.NamespacedName]uint)
+					storedDaemonset[types.NamespacedName{Name: daemonset.ObjectMeta.Name, Namespace: daemonset.ObjectMeta.Namespace}] = storedCounter
+					watchedConfigmaps[configmapName].Daemonsets = storedDaemonset
+				} else {
+					watchedConfigmaps[configmapName].Daemonsets[types.NamespacedName{Name: daemonset.ObjectMeta.Name, Namespace: daemonset.ObjectMeta.Namespace}] = storedCounter
+				}
 			}
 			watchedConfigmaps[configmapName].Mark = storedCounter
 		}
@@ -158,10 +172,11 @@ NEXT_STATEFULSET:
 			klog.V(5).Infof("Ignoring statefulset %s/%s since it's not in an allowed namespace.", statefulset.ObjectMeta.Namespace, statefulset.ObjectMeta.Name)
 			continue NEXT_STATEFULSET
 		}
+		klog.Infof("Found statefulset opting in: %s", statefulset.ObjectMeta.Name)
 		if _, ok := statefulset.ObjectMeta.Annotations[watcherAnnotation]; ok {
 			// If the statefulset has the annotation, get the namespace/name of the configmap
 			configmapName := splitNamespacedName(statefulset.ObjectMeta.Annotations[watcherAnnotation])
-			klog.V(3).Infof("The configmap name %s", configmapName.String())
+			klog.V(3).Infof("The configmap specified by this statefulset %s", configmapName.String())
 			_, err := w.client.CoreV1().ConfigMaps(configmapName.Namespace).Get(configmapName.Name, metav1.GetOptions{})
 			if err != nil {
 				klog.Errorf("Unable to get configmap; invalid name/namespace for configmap or error with contacting the server, error: %s, configmap name specified: %s", err.Error(), configmapName)
@@ -176,7 +191,13 @@ NEXT_STATEFULSET:
 				w.createInformer(configmapName, &stopCh)
 			} else {
 				klog.V(3).Info("Configmap already in list to watch, updating counter on statefulset")
-				watchedConfigmaps[configmapName].Statefulsets[types.NamespacedName{Name: statefulset.ObjectMeta.Name, Namespace: statefulset.ObjectMeta.Namespace}] = storedCounter
+				if watchedConfigmaps[configmapName].Statefulsets == nil {
+					storedStatefulset := make(map[types.NamespacedName]uint)
+					storedStatefulset[types.NamespacedName{Name: statefulset.ObjectMeta.Name, Namespace: statefulset.ObjectMeta.Namespace}] = storedCounter
+					watchedConfigmaps[configmapName].Statefulsets = storedStatefulset
+				} else {
+					watchedConfigmaps[configmapName].Statefulsets[types.NamespacedName{Name: statefulset.ObjectMeta.Name, Namespace: statefulset.ObjectMeta.Namespace}] = storedCounter
+				}
 			}
 			watchedConfigmaps[configmapName].Mark = storedCounter
 		}
