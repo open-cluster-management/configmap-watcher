@@ -2,6 +2,10 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: cmw
+  labels:
+    watcher.ibm.com/opt-in: "true"
+  annotations:
+    watcher.ibm.com/configmap-resource: "cert-manager/test-map"
 spec:
   selector:
     matchLabels:
@@ -11,6 +15,8 @@ spec:
       labels:
         app: cmw
     spec:
+      imagePullSecrets:
+      - name: ps1
       containers:
       - name: cmw
         image: hyc-cloud-private-scratch-docker-local.artifactory.swg-devops.com/crystal/config-map-watcher/cmw:1
