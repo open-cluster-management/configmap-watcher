@@ -12,7 +12,7 @@ GIT_REMOTE_URL := $(shell git config --get remote.origin.url)
 GOARCH=$(ARCH)
 GOOS := linux
 
-APP=icp-config-map-watcher
+APP=icp-configmap-watcher
 VERSION=3.3.0
 
 # Metadata
