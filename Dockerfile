@@ -12,7 +12,7 @@ RUN microdnf update && \
     adduser -r -u 10000 watcher && \
     microdnf clean all
 
-ADD icp-config-map-watcher_$GOARCH /usr/bin/watcher
+ADD icp-configmap-watcher_$GOARCH /usr/bin/watcher
 
 RUN chmod a+x /usr/bin/watcher
 
