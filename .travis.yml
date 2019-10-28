@@ -49,7 +49,6 @@ jobs:
         - make docker-image
         - make docker:login
         - make docker-push
-        - make rhel-image
         - make docker-push-rhel
     - stage: build
       os: linux-ppc64le

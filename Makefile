@@ -62,32 +62,27 @@ docker-image:
            --build-arg "IMAGE_DESCRIPTION=$(IMAGE_DESCRIPTION)" \
 		   --build-arg "SUMMARY=$(SUMMARY)" \
 		   --build-arg "GOARCH=$(GOARCH)"')
-	@echo "$(DOCKER_BUILD_PATH)"
 	@make DOCKER_BUILD_OPTS=$(DOCKER_BUILD_OPTS) docker:build
-	@make docker:tag
+	@make DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT) docker:tag
 
 .PHONY: docker-push
 # Push the docker image
 docker-push:
-	@make docker:push
 ifneq ($(RETAG),)
-	$(eval RELEASE := $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(RELEASE_TAG))
-	docker tag $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(DOCKER_BUILD_TAG) $(RELEASE)
-	@make DOCKER_URI=$(RELEASE) docker:push
-	@echo "Retagged image as $(RELEASE) and pushed to $(DOCKER_REGISTRY)"
+	@make docker:tag
+	@make docker:push
+	@echo "Retagged image as $(DOCKER_URI) and pushed to $(DOCKER_REGISTRY)"
+else
+	@make DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT) docker:push
 endif
 
 .PHONY: docker-push-rhel
 docker-push-rhel:
-	$(eval RHEL_IMAGE := $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(DOCKER_BUILD_TAG_RHEL))
-	@make DOCKER_URI=$(RHEL_IMAGE) docker:push
 ifneq ($(RETAG),)
-	$(eval RELEASE := $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(RELEASE_TAG_RHEL))
-	docker tag $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(DOCKER_BUILD_TAG_RHEL) $(RELEASE)
-	@make DOCKER_URI=$(RELEASE) docker:push
-	@echo "Retagged image as $(RELEASE) and pushed to $(DOCKER_REGISTRY)"
+	@make DOCKER_URI=$(DOCKER_URI)-rhel docker:tag
+	@make DOCKER_URI=$(DOCKER_URI)-rhel docker:push
+	@echo "Retagged image as $(DOCKER_URI)-rhel and pushed to $(DOCKER_REGISTRY)"
+else
+	@make DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT)-rhel docker:tag
+	@make DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT)-rhel docker:push
 endif
-
-.PHONY: rhel-image
-rhel-image:
-	docker tag $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(DOCKER_BUILD_TAG) $(DOCKER_REGISTRY)/$(DOCKER_NAMESPACE)/$(DOCKER_IMAGE):$(DOCKER_BUILD_TAG_RHEL)

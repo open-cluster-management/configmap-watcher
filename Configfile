@@ -23,7 +23,5 @@ SUMMARY=Watches for changes in configmaps for pods and restarts pods if they cha
 DOCKER_REGISTRY ?= hyc-cloud-private-scratch-docker-local.artifactory.swg-devops.com
 DOCKER_NAMESPACE ?= crystal
 DOCKER_IMAGE ?= $(APP)-$(ARCH)
-DOCKER_BUILD_TAG ?= $(VERSION)-$(GIT_COMMIT)
-DOCKER_BUILD_TAG_RHEL ?= $(DOCKER_BUILD_TAG)-rhel
 DOCKER_FILE := Dockerfile
 DOCKER_BUILD_PATH := $(TRAVIS_BUILD_DIR)
