@@ -38,7 +38,8 @@ endif
 
 .PHONY: dependencies
 dependencies:
-	go get -v ./...
+	go mod tidy
+	go mod vendor
 
 .PHONY: lint test
 lint:
