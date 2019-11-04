@@ -8,6 +8,7 @@ package watcher
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -65,8 +66,16 @@ func (w *WatcherController) createInformer(configmap types.NamespacedName, stopC
 	informer := informerFactory.Core().V1().ConfigMaps().Informer()
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		UpdateFunc: func(old interface{}, new interface{}) {
-			klog.V(5).Infof("Update to configmap %s/%s occurred, restarting all pods watching it.", new.(*corev1.ConfigMap).ObjectMeta.Namespace, new.(*corev1.ConfigMap).ObjectMeta.Name)
-			RestartAll(w.client, configmap, watchedConfigmaps)
+			klog.V(2).Infof("Update to configmap %s/%s occurred.", new.(*corev1.ConfigMap).ObjectMeta.Namespace, new.(*corev1.ConfigMap).ObjectMeta.Name)
+			if equal := reflect.DeepEqual(old, new); equal {
+				klog.V(2).Infof("Configmap is equal to old version.")
+				klog.V(4).Infof("\nold: %v \nnew: %v", old, new)
+			} else {
+				klog.Infof("Restarting all pods watching it.")
+				klog.V(2).Infof("Configmap is not equal to old version.")
+				klog.V(4).Infof("\nold: %v \nnew: %v", old, new)
+				RestartAll(w.client, configmap, watchedConfigmaps)
+			}
 		},
 	})
 	klog.V(2).Infof("Starting informer for %s", configmap.String())
@@ -75,7 +84,7 @@ func (w *WatcherController) createInformer(configmap types.NamespacedName, stopC
 
 // GatherConfigMaps - periodically gathers configmaps specified by any deployment, daemonset, and/or statefulset
 // that opts into this watcher
-func (w *WatcherController) GatherConfigMaps(freq uint, stopCh <-chan struct{}) {
+func (w *WatcherController) GatherConfigMaps(freq uint) {
 	storedCounter++
 	klog.V(4).Infof("Gather configmaps counter: %d", storedCounter)
 

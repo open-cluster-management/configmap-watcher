@@ -12,7 +12,7 @@ import (
 // RestartAll calls the restart functions for every deployment/daemonset/statefulset that is watching
 // the configmap that was updated.
 func RestartAll(client *kubernetes.Clientset, configmap types.NamespacedName, watchedConfigmaps map[types.NamespacedName]*ConfigMapper) {
-	klog.V(5).Infof("Configmap update %v", configmap)
+	klog.V(3).Infof("Configmap update %v", configmap)
 	// Get the configmapper
 	configmapper := watchedConfigmaps[configmap]
 
@@ -38,7 +38,7 @@ func RestartAll(client *kubernetes.Clientset, configmap types.NamespacedName, wa
 
 func restartDeployment(client *kubernetes.Clientset, deploymentName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
-	klog.V(4).Infof("Restarting deployment %s at %s", deploymentName.String(), update)
+	klog.Infof("Restarting deployment %s at %s", deploymentName.String(), update)
 	deploymentsInterface := client.AppsV1().Deployments(deploymentName.Namespace)
 	deployment, err := deploymentsInterface.Get(deploymentName.Name, metav1.GetOptions{})
 	if err != nil {
@@ -57,7 +57,7 @@ func restartDeployment(client *kubernetes.Clientset, deploymentName types.Namesp
 
 func restartDaemonset(client *kubernetes.Clientset, daemonsetName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
-	klog.V(4).Infof("Restarting daemonset %s at %s", daemonsetName.String(), update)
+	klog.Infof("Restarting daemonset %s at %s", daemonsetName.String(), update)
 	daemonsetInterface := client.AppsV1().DaemonSets(daemonsetName.Namespace)
 	daemonset, err := daemonsetInterface.Get(daemonsetName.Name, metav1.GetOptions{})
 	if err != nil {
@@ -76,7 +76,7 @@ func restartDaemonset(client *kubernetes.Clientset, daemonsetName types.Namespac
 
 func restartStatefulset(client *kubernetes.Clientset, statefulsetName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
-	klog.V(4).Infof("Restarting statefulset %s at %s", statefulsetName.String(), update)
+	klog.Infof("Restarting statefulset %s at %s", statefulsetName.String(), update)
 	statefulsetInterface := client.AppsV1().StatefulSets(statefulsetName.Namespace)
 	statefulset, err := statefulsetInterface.Get(statefulsetName.Name, metav1.GetOptions{})
 	if err != nil {

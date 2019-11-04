@@ -16,7 +16,6 @@ import (
 	"k8s.io/klog"
 
 	watcherController "github.ibm.com/IBMPrivateCloud/configmap-watcher/pkg/controller/watcher"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
@@ -45,7 +44,7 @@ func main() {
 	klog.V(5).Infof("Allowed namespaces %v", allowed)
 
 	klog.Info("In main. Starting now")
-	stopCh := ctrl.SetupSignalHandler()
+
 	klog.V(11).Info("Getting the kubeconfig...")
 	// Get the kube config
 	cfg, err := config.GetConfig()
@@ -64,7 +63,7 @@ func main() {
 		defer wg.Done()
 		klog.V(11).Info("Starting gather configmap")
 		for {
-			watcher.GatherConfigMaps(gatherFreq, stopCh)
+			watcher.GatherConfigMaps(gatherFreq)
 			klog.V(11).Info("Back in for loop before another call gather configs")
 		}
 		klog.V(11).Info("Exited worker configmap watcher")
