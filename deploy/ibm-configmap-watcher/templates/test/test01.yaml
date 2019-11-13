@@ -1,5 +1,5 @@
 # Licensed Materials - Property of IBM
-# 5737-E67
+#
 # @ Copyright IBM Corporation 2016, 2019. All Rights Reserved.
 # US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
 
@@ -21,10 +21,10 @@ spec:
   hostIPC: false
   serviceAccountName: {{ .Values.serviceAccount.name }}
   securityContext:
-{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }} 
+{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }}
     runAsUser: {{ .Values.securityContext.pod.runAsUser }}
 {{- end }}
-    runAsNonRoot: {{ .Values.securityContext.pod.runAsNonRoot }}  
+    runAsNonRoot: {{ .Values.securityContext.pod.runAsNonRoot }}
   containers:
   - name: {{ .Release.Name }}-test-cmw-health
     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -38,12 +38,12 @@ spec:
         memory: "300Mi"
     securityContext:
       allowPrivilegeEscalation: {{ .Values.securityContext.container.allowPrivilegeEscalation }}
-{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }} 
+{{- if not (.Capabilities.APIVersions.Has "security.openshift.io/v1") }}
       runAsUser: {{ .Values.securityContext.container.runAsUser }}
-{{- end }}          
+{{- end }}
       readOnlyRootFilesystem: {{ .Values.securityContext.container.readOnlyRootFilesystem }}
       runAsNonRoot: {{ .Values.securityContext.container.runAsNonRoot }}
-      privileged: {{ .Values.securityContext.container.privileged }}    
+      privileged: {{ .Values.securityContext.container.privileged }}
       capabilities:
         drop:
         - ALL
