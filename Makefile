@@ -75,8 +75,14 @@ ifneq ($(RETAG),)
 	@echo "Retagged image as $(DOCKER_URI) and pushed to $(DOCKER_REGISTRY)"
 else
 	@make DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT) docker:push
+endif
+
+.PHONY: va-scan
+va-scan:
+ifeq ($(RETAG),)
 	@make VASCAN_DOCKER_URI=$(DOCKER_URI)-$(GIT_COMMIT) vascan:image
 endif
+
 
 .PHONY: docker-push-rhel
 docker-push-rhel:
