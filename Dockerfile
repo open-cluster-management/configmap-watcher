@@ -5,14 +5,13 @@ ARG VCS_URL
 ARG IMAGE_NAME
 ARG IMAGE_DESCRIPTION
 ARG SUMMARY
-ARG GOARCH
 
 RUN microdnf update && \
     microdnf install shadow-utils procps && \
     adduser -r -u 10000 watcher && \
     microdnf clean all
 
-ADD icp-configmap-watcher_$GOARCH /usr/bin/watcher
+ADD configmap-watcher /usr/bin/watcher
 
 RUN chmod a+x /usr/bin/watcher
 
