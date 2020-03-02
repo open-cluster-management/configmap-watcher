@@ -47,6 +47,7 @@ jobs:
           make
           make component/build
           make component/push
+          make security/scans
     - stage: unit-test
       name: "Build and run unit tests"
       os: linux

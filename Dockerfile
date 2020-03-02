@@ -8,7 +8,7 @@ ARG SUMMARY
 
 RUN microdnf update && \
     microdnf install shadow-utils procps && \
-    adduser -r -u 10000 watcher && \
+    adduser -r -u 1001010000 watcher && \
     microdnf clean all
 
 ADD configmap-watcher /usr/bin/watcher
@@ -19,7 +19,7 @@ RUN mkdir /licenses
 
 COPY packages.yaml /licenses
 
-user 10000
+user 1001010000
 
 ENTRYPOINT ["/usr/bin/watcher"]
 
