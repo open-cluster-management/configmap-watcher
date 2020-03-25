@@ -31,7 +31,7 @@ func main() {
 	flag.UintVar(&gatherFreq, "gather-frequency", 20, "How frequently (in seconds) to gather configmaps from kubernetes deployments/daemonsets/statefulsets")
 	flag.UintVar(&cleanFreq, "clean-frequency", 100, "How frequently (in count) we want to clean up stale resources.")
 	flag.BoolVar(&restrictNamespaces, "restrict-namespaces", false, "If true, restricts which deployable is allowed to use this controller based on the allowed-namespaces flag.")
-	flag.Set("logtostderr", "true")
+	flag.Set("logtostderr", "true") /* #nosec G104 */
 
 	flag.Parse()
 
