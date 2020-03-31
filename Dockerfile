@@ -17,8 +17,6 @@ RUN chmod a+x /usr/bin/watcher
 
 RUN mkdir /licenses
 
-COPY packages.yaml /licenses
-
 user 1001010000
 
 ENTRYPOINT ["/usr/bin/watcher"]
