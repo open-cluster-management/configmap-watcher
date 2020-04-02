@@ -41,7 +41,7 @@ go-coverage:
 		$$(go list ./... | \
 			grep -v '/vendor/' \
 		) > report.json)
-	gosec --quiet -fmt sonarqube -out gosec.json -no-fail ./...
+	gosec -fmt sonarqube -out gosec.json -no-fail ./...
 	sonar-scanner --debug || echo "Sonar scanning is not available at this time"
 
 .PHONY: go-build
