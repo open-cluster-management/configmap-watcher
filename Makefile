@@ -12,12 +12,19 @@ include Configfile
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Copyright (c) 2020 Red Hat, Inc.
 
 # GITHUB_USER containing '@' char must be escaped with '%40'
 GITHUB_USER := $(shell echo $(GITHUB_USER) | sed 's/@/%40/g')
 GITHUB_TOKEN ?=
 
--include $(shell curl -H 'Authorization: token ${GITHUB_TOKEN}' -H 'Accept: application/vnd.github.v4.raw' -L https://api.github.com/repos/open-cluster-management/build-harness-extensions/contents/templates/Makefile.build-harness-bootstrap -o .build-harness-bootstrap; echo .build-harness-bootstrap)
+USE_VENDORIZED_BUILD_HARNESS ?=
+
+ifndef USE_VENDORIZED_BUILD_HARNESS
+-include $(shell curl -s -H 'Authorization: token ${GITHUB_TOKEN}' -H 'Accept: application/vnd.github.v4.raw' -L https://api.github.com/repos/open-cluster-management/build-harness-extensions/contents/templates/Makefile.build-harness-bootstrap -o .build-harness-bootstrap; echo .build-harness-bootstrap)
+else
+-include vbh/.build-harness-bootstrap
+endif
 
 .PHONY: default
 default::
@@ -35,13 +42,16 @@ lint:
 test:
 	@echo "Testing disabled."
 
+copyright-check:
+	./build/copyright-check.sh $(TRAVIS_BRANCH) $(TRAVIS_PULL_REQUEST_BRANCH)
+
 .PHONY: go-coverage
 go-coverage:
 	$(shell go test -coverprofile=coverage.out -json ./...\
 		$$(go list ./... | \
 			grep -v '/vendor/' \
 		) > report.json)
-	gosec --quiet -fmt sonarqube -out gosec.json -no-fail ./...
+	gosec -fmt sonarqube -out gosec.json -no-fail ./...
 	sonar-scanner --debug || echo "Sonar scanning is not available at this time"
 
 .PHONY: go-build
