@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.2-267
 
 ARG VCS_REF
 ARG VCS_URL
@@ -8,7 +8,7 @@ ARG SUMMARY
 
 RUN microdnf update && \
     microdnf install shadow-utils procps && \
-    adduser -r -u 1001010000 watcher && \
+    adduser -r -l -u 100101 watcher && \
     microdnf clean all
 
 ADD configmap-watcher /usr/bin/watcher
@@ -17,7 +17,7 @@ RUN chmod a+x /usr/bin/watcher
 
 RUN mkdir /licenses
 
-user 1001010000
+user 100101
 
 ENTRYPOINT ["/usr/bin/watcher"]
 
