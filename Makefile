@@ -19,6 +19,8 @@ GITHUB_USER := $(shell echo $(GITHUB_USER) | sed 's/@/%40/g')
 GITHUB_TOKEN ?=
 
 USE_VENDORIZED_BUILD_HARNESS ?=
+GOARCH = $(shell go env GOARCH)
+GOOS = $(shell go env GOOS)
 
 ifndef USE_VENDORIZED_BUILD_HARNESS
 -include $(shell curl -s -H 'Authorization: token ${GITHUB_TOKEN}' -H 'Accept: application/vnd.github.v4.raw' -L https://api.github.com/repos/open-cluster-management/build-harness-extensions/contents/templates/Makefile.build-harness-bootstrap -o .build-harness-bootstrap; echo .build-harness-bootstrap)
@@ -32,8 +34,10 @@ default::
 
 .PHONY: dependencies
 dependencies:
+	curl -sL https://go.kubebuilder.io/dl/2.0.0-alpha.1/${GOOS}/${GOARCH} | tar -xz -C /tmp/
+	sudo mv /tmp/kubebuilder_2.0.0-alpha.1_${GOOS}_${GOARCH} /usr/local/kubebuilder
 	go mod tidy
-	go mod vendor
+	go mod download
 
 .PHONY: lint test
 lint:
