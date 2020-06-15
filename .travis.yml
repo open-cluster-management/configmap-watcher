@@ -1,7 +1,6 @@
 language: go
-go_import_path: github.ibm.com/IBMPrivateCloud/configmap-watcher
 go:
-  - 1.13.2
+  - 1.14.x
 
 services:
   - docker

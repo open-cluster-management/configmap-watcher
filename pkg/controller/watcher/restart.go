@@ -11,7 +11,7 @@ import (
 
 // RestartAll calls the restart functions for every deployment/daemonset/statefulset that is watching
 // the configmap that was updated.
-func RestartAll(client *kubernetes.Clientset, configmap types.NamespacedName, watchedConfigmaps map[types.NamespacedName]*ConfigMapper) {
+func RestartAll(client kubernetes.Interface, configmap types.NamespacedName, watchedConfigmaps map[types.NamespacedName]*ConfigMapper) {
 	klog.V(3).Infof("Configmap update %v", configmap)
 	// Get the configmapper
 	configmapper := watchedConfigmaps[configmap]
@@ -36,7 +36,7 @@ func RestartAll(client *kubernetes.Clientset, configmap types.NamespacedName, wa
 	}
 }
 
-func restartDeployment(client *kubernetes.Clientset, deploymentName types.NamespacedName) error {
+func restartDeployment(client kubernetes.Interface, deploymentName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
 	klog.Infof("Restarting deployment %s at %s", deploymentName.String(), update)
 	deploymentsInterface := client.AppsV1().Deployments(deploymentName.Namespace)
@@ -55,7 +55,7 @@ func restartDeployment(client *kubernetes.Clientset, deploymentName types.Namesp
 	return nil
 }
 
-func restartDaemonset(client *kubernetes.Clientset, daemonsetName types.NamespacedName) error {
+func restartDaemonset(client kubernetes.Interface, daemonsetName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
 	klog.Infof("Restarting daemonset %s at %s", daemonsetName.String(), update)
 	daemonsetInterface := client.AppsV1().DaemonSets(daemonsetName.Namespace)
@@ -74,7 +74,7 @@ func restartDaemonset(client *kubernetes.Clientset, daemonsetName types.Namespac
 	return nil
 }
 
-func restartStatefulset(client *kubernetes.Clientset, statefulsetName types.NamespacedName) error {
+func restartStatefulset(client kubernetes.Interface, statefulsetName types.NamespacedName) error {
 	update := time.Now().Format("2006-1-2.1504")
 	klog.Infof("Restarting statefulset %s at %s", statefulsetName.String(), update)
 	statefulsetInterface := client.AppsV1().StatefulSets(statefulsetName.Namespace)

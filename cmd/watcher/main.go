@@ -15,7 +15,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
 
-	watcherController "github.ibm.com/IBMPrivateCloud/configmap-watcher/pkg/controller/watcher"
+	watcherController "github.com/open-cluster-management/configmap-watcher/pkg/controller/watcher"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
@@ -55,7 +55,7 @@ func main() {
 
 	klog.V(11).Info("Got kube config, getting client")
 	// Get kubernetes client based on config
-	kubeClient := kubernetes.NewForConfigOrDie(cfg)
+	var kubeClient kubernetes.Interface = kubernetes.NewForConfigOrDie(cfg)
 	watcher := watcherController.Init(kubeClient, allowed, cleanFreq, restrictNamespaces)
 	var wg sync.WaitGroup
 	wg.Add(1)
