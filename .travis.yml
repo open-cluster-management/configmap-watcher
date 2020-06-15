@@ -1,7 +1,6 @@
 language: go
-go_import_path: github.ibm.com/IBMPrivateCloud/configmap-watcher
 go:
-  - 1.13.2
+  - 1.14.x
 
 services:
   - docker
@@ -26,7 +25,6 @@ env:
     - COMPONENT_TYPE="make"
     - COMPONENT_INIT_COMMAND=${TRAVIS_BUILD_DIR}/build/install-dependencies.sh
     - COMPONENT_BUILD_COMMAND=${TRAVIS_BUILD_DIR}/build/build.sh
-    - COMPONENT_UNIT_TEST_COMMAND=${TRAVIS_BUILD_DIR}/build/run-unit-tests.sh
     - COMPONENT_E2E_TEST_COMMAND=${TRAVIS_BUILD_DIR}/build/run-e2e-tests.sh
 
 stages:
@@ -43,6 +41,7 @@ jobs:
         - if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then export COMPONENT_TAG_EXTENSION="-PR${TRAVIS_PULL_REQUEST}-${TRAVIS_COMMIT}"; fi;
         - |
           make
+          make copyright-check TRAVIS_BRANCH=${TRAVIS_BRANCH} TRAVIS_PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
           make component/build
           make component/push
           make security/scans
@@ -52,8 +51,8 @@ jobs:
       script:
         - |
           make
-          make copyright-check TRAVIS_BRANCH=${TRAVIS_BRANCH} TRAVIS_PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
-          make component/test/unit
+          make dependencies
+          make sonar/go
     - stage: test-e2e
       name: "Run e2e tests"
       os: linux

@@ -41,11 +41,13 @@ type ConfigMapper struct {
 	Mark         uint
 }
 
+// WatcherController used to watch the configmaps for changes
 type WatcherController struct {
-	client *kubernetes.Clientset
+	client kubernetes.Interface
 }
 
-func Init(cl *kubernetes.Clientset, allowed map[string]struct{}, cleanFreq uint, restrict bool) *WatcherController {
+// Init initializes the settings for the controller
+func Init(cl kubernetes.Interface, allowed map[string]struct{}, cleanFreq uint, restrict bool) *WatcherController {
 	klog.V(4).Info("Initializing watcher controller.")
 	allowedNamespaces = allowed
 	clean = cleanFreq
