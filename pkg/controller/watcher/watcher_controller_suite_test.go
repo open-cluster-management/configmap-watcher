@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	v1 "k8s.io/api/apps/v1"
+	coretypes "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -49,6 +50,14 @@ var statefulset = v1.StatefulSet{
 	},
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "statefulset",
+		Namespace: "default",
+	}}
+var configmap = coretypes.ConfigMap{
+	TypeMeta: metav1.TypeMeta{
+		Kind: "configmap",
+	},
+	ObjectMeta: metav1.ObjectMeta{
+		Name:      "configmap",
 		Namespace: "default",
 	}}
 
