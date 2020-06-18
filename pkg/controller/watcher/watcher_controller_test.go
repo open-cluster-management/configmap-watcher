@@ -15,6 +15,7 @@ package watcher
 
 import (
 	"testing"
+	"time"
 
 	"k8s.io/client-go/kubernetes"
 	testclient "k8s.io/client-go/kubernetes/fake"
@@ -25,11 +26,22 @@ var err error
 func TestReconcile(t *testing.T) {
 
 	var simpleClient kubernetes.Interface = testclient.NewSimpleClientset()
+
+	// Create the opt in label
 	newlbl := make(map[string]string)
-	newlbl[watcherAnnotation] = "true"
+	newlbl["watcher.ibm.com/opt-in"] = "true"
 	deployment.Labels = newlbl
 	daemonset.Labels = newlbl
 	statefulset.Labels = newlbl
+
+	// create the config map to watch annotation
+	newannot := make(map[string]string)
+	newannot[watcherAnnotation] = "default/configmap"
+	deployment.Annotations = newannot
+	daemonset.Annotations = newannot
+	statefulset.Annotations = newannot
+
+	simpleClient.CoreV1().ConfigMaps("default").Create(&configmap)
 	simpleClient.AppsV1().Deployments("default").Create(&deployment)
 	simpleClient.AppsV1().DaemonSets("default").Create(&daemonset)
 	simpleClient.AppsV1().StatefulSets("default").Create(&statefulset)
@@ -39,4 +51,11 @@ func TestReconcile(t *testing.T) {
 	Init(simpleClient, nil, 1, true)
 	watcher.GatherConfigMaps(1)
 
+	// sleep for a bit
+	time.Sleep(time.Second * 2)
+	configmap.Labels = newlbl
+	simpleClient.CoreV1().ConfigMaps("default").Update(&configmap)
+
+	time.Sleep(time.Second * 2)
+	watcher.GatherConfigMaps(1)
 }
