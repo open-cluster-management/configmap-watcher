@@ -14,6 +14,8 @@
 package watcher
 
 import (
+	"flag"
+	"fmt"
 	stdlog "log"
 	"os"
 	"testing"
@@ -26,6 +28,7 @@ import (
 )
 
 var cfg *rest.Config
+var labels map[string]string = make(map[string]string)
 
 var deployment = v1.Deployment{
 	TypeMeta: metav1.TypeMeta{
@@ -35,6 +38,15 @@ var deployment = v1.Deployment{
 		Name:      "deployment",
 		Namespace: "default",
 	},
+	Spec: v1.DeploymentSpec{
+		Template: coretypes.PodTemplateSpec{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "pod",
+				Namespace: "default",
+				Labels:    labels,
+			},
+		},
+	},
 }
 var daemonset = v1.DaemonSet{
 	TypeMeta: metav1.TypeMeta{
@@ -43,7 +55,17 @@ var daemonset = v1.DaemonSet{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "daemonset",
 		Namespace: "default",
-	}}
+	},
+	Spec: v1.DaemonSetSpec{
+		Template: coretypes.PodTemplateSpec{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "pod",
+				Namespace: "default",
+				Labels:    labels,
+			},
+		},
+	},
+}
 var statefulset = v1.StatefulSet{
 	TypeMeta: metav1.TypeMeta{
 		Kind: "statefulset",
@@ -51,7 +73,17 @@ var statefulset = v1.StatefulSet{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "statefulset",
 		Namespace: "default",
-	}}
+	},
+	Spec: v1.StatefulSetSpec{
+		Template: coretypes.PodTemplateSpec{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "pod",
+				Namespace: "default",
+				Labels:    labels,
+			},
+		},
+	},
+}
 var configmap = coretypes.ConfigMap{
 	TypeMeta: metav1.TypeMeta{
 		Kind: "configmap",
@@ -60,6 +92,13 @@ var configmap = coretypes.ConfigMap{
 		Name:      "configmap",
 		Namespace: "default",
 	}}
+
+func init() {
+	flag.Set("alsologtostderr", fmt.Sprintf("%t", true))
+	var logLevel string
+	flag.StringVar(&logLevel, "logLevel", "5", "test")
+	flag.Set("v", logLevel)
+}
 
 func TestMain(m *testing.M) {
 	t := &envtest.Environment{}
