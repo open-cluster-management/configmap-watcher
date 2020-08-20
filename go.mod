@@ -3,6 +3,8 @@ module github.com/open-cluster-management/configmap-watcher
 go 1.14
 
 require (
+	github.com/gorilla/websocket v1.4.2
+	github.com/coreos/etcd v3.3.24+incompatible
 	github.com/stretchr/testify v1.4.0
 	k8s.io/api v0.17.4
 	k8s.io/apimachinery v0.17.4
