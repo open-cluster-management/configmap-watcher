@@ -13,8 +13,9 @@ require (
 	sigs.k8s.io/controller-runtime v0.5.2
 )
 
-replace k8s.io/api => k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
-
-replace k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20190913080033-27d36303b655
-
-replace k8s.io/client-go => k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
+replace (
+	k8s.io/api => k8s.io/api v0.0.0-20190918155943-95b840bb6a1f
+	golang.org/x/text => golang.org/x/text v0.3.3 // CVE-2020-14040
+	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20190913080033-27d36303b655
+	k8s.io/client-go => k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
+)
