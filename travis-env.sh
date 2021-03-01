@@ -1,5 +1,5 @@
-# Pushes images to integration if master and not a pull request.
-if [ "$TRAVIS_BRANCH" = "master" ] && ! [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then
+# Pushes images to integration if main and not a pull request.
+if [ "$TRAVIS_BRANCH" = "main" ] && ! [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then
     RETAG=true
     DOCKER_REGISTRY=hyc-cloud-private-integration-docker-local.artifactory.swg-devops.com
     NAMESPACE=ibmcom
