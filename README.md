@@ -1,3 +1,5 @@
+[comment]: # ( Copyright Contributors to the Open Cluster Management project )
+
 # configmap-watcher
 
 **This repository is being used temporarily as a solution that works with our current

@@ -1,3 +1,5 @@
+# Copyright Contributors to the Open Cluster Management project
+
 # Pushes images to integration if main and not a pull request.
 if [ "$TRAVIS_BRANCH" = "main" ] && ! [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then
     RETAG=true
