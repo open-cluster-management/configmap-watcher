@@ -1,3 +1,6 @@
+# Copyright (c) 2020 Red Hat, Inc.
+# Copyright Contributors to the Open Cluster Management project
+
 include Configfile
 # Copyright 2019 The Jetstack cert-manager contributors.
 #
@@ -12,7 +15,6 @@ include Configfile
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Copyright (c) 2020 Red Hat, Inc.
 
 # GITHUB_USER containing '@' char must be escaped with '%40'
 GITHUB_USER := $(shell echo $(GITHUB_USER) | sed 's/@/%40/g')

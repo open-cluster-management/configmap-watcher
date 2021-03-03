@@ -1,3 +1,5 @@
+// Copyright Contributors to the Open Cluster Management project
+
 // Licensed Materials - Property of IBM
 // (c) Copyright IBM Corporation 2019. All Rights Reserved.
 // Note to U.S. Government Users Restricted Rights:
