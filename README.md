@@ -8,3 +8,7 @@ When the alternate solution is implemnted, this repository will then be archived
 
 This controller allows you to add an annotation to a deployment indicating the deployment
 should be restarted any time a change is detected in the specified configmap.
+
+<!---
+Date: 4/01/2021
+-->
