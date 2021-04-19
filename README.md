@@ -10,5 +10,5 @@ This controller allows you to add an annotation to a deployment indicating the d
 should be restarted any time a change is detected in the specified configmap.
 
 <!---
-Date: 4/01/2021
+Date: 4/19/2021
 -->
